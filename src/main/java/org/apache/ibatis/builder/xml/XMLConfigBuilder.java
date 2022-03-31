@@ -1,5 +1,5 @@
 /*
- *    Copyright ${license.git.copyrightYears} the original author or authors.
+ *    Copyright 2009-2022 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -79,10 +79,12 @@ public class XMLConfigBuilder extends BaseBuilder {
   }
 
   public XMLConfigBuilder(InputStream inputStream, String environment, Properties props) {
+    // 解析全局配置文件并创建configuration对象
     this(new XPathParser(inputStream, true, props, new XMLMapperEntityResolver()), environment, props);
   }
 
   private XMLConfigBuilder(XPathParser parser, String environment, Properties props) {
+    // 将类型解析器添加到typeAliasRegistry
     super(new Configuration());
     ErrorContext.instance().resource("SQL Mapper Configuration");
     this.configuration.setVariables(props);
@@ -102,21 +104,33 @@ public class XMLConfigBuilder extends BaseBuilder {
 
   private void parseConfiguration(XNode root) {
     try {
+      // 读取properties节点配置并将配置设置到configuration的properties中
       // issue #117 read properties first
       propertiesElement(root.evalNode("properties"));
+      // 读取settings节点配置并将配置添加到configuration的properties中
       Properties settings = settingsAsProperties(root.evalNode("settings"));
+      // 加载settings配置中的vfs实现即vfsImpl标签
       loadCustomVfs(settings);
+      // 加载settings配置中的日志的具体实现即logImpl标签
       loadCustomLogImpl(settings);
+      // 加载自定义别名映射即全局配置文件中的typeAliases标签的内容
       typeAliasesElement(root.evalNode("typeAliases"));
+      // 加载自定插件即全局配置文件中的plugins标签内容
       pluginElement(root.evalNode("plugins"));
+      // 加载自定义对象工厂的实现即全局配置文件中objectFactory标签的内容
       objectFactoryElement(root.evalNode("objectFactory"));
       objectWrapperFactoryElement(root.evalNode("objectWrapperFactory"));
       reflectorFactoryElement(root.evalNode("reflectorFactory"));
+      // 设置setting的各项配置，如果没有配置具体的值，则使用默认值，如一级缓存的开启，默认executor的类型为simple等
       settingsElement(settings);
+      // 设置数据源相关信息，如连接信息、事务信息、数据库厂商等
       // read it after objectFactory and objectWrapperFactory issue #631
       environmentsElement(root.evalNode("environments"));
       databaseIdProviderElement(root.evalNode("databaseIdProvider"));
+      // 设置自定义类型处理器即全局配置文件中的typeHandlers标签内容，可是使用package扫描的方式也可以使用标签配置的方式，最终都注册进typeHandlerRegistry中
       typeHandlerElement(root.evalNode("typeHandlers"));
+      // 设置mapper映射器内容，mapper映射文件内容可通过resource、url、class、package四种方式进行设置，
+      // 其中resource和url由于xml文件方式，故需要使用XmlMapperBuilder进行解析之后添加到configuration对象中
       mapperElement(root.evalNode("mappers"));
     } catch (Exception e) {
       throw new BuilderException("Error parsing SQL Mapper Configuration. Cause: " + e, e);

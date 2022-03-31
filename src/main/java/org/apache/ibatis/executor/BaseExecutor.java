@@ -1,5 +1,5 @@
 /*
- *    Copyright ${license.git.copyrightYears} the original author or authors.
+ *    Copyright 2009-2022 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -148,6 +148,7 @@ public abstract class BaseExecutor implements Executor {
     }
     List<E> list;
     try {
+      // 从一级缓存中获取结果，如果获取不到则执行数据库查询
       queryStack++;
       list = resultHandler == null ? (List<E>) localCache.getObject(key) : null;
       if (list != null) {
@@ -322,6 +323,7 @@ public abstract class BaseExecutor implements Executor {
     List<E> list;
     localCache.putObject(key, EXECUTION_PLACEHOLDER);
     try {
+      // 执行查询操作
       list = doQuery(ms, parameter, rowBounds, resultHandler, boundSql);
     } finally {
       localCache.removeObject(key);

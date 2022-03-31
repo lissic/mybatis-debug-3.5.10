@@ -1,5 +1,5 @@
 /*
- *    Copyright ${license.git.copyrightYears} the original author or authors.
+ *    Copyright 2009-2022 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -147,7 +147,9 @@ public class DefaultSqlSession implements SqlSession {
 
   private <E> List<E> selectList(String statement, Object parameter, RowBounds rowBounds, ResultHandler handler) {
     try {
+      // 执行具体的查询逻辑并对结果进行处理
       MappedStatement ms = configuration.getMappedStatement(statement);
+      // 默认Mybatis会将执行器进行装饰，默认增加cachingExecutor，最终的逻辑查询逻辑下沉到baseExecutor中，默认使用SimpleExecutor进行处理
       return executor.query(ms, wrapCollection(parameter), rowBounds, handler);
     } catch (Exception e) {
       throw ExceptionFactory.wrapException("Error querying database.  Cause: " + e, e);

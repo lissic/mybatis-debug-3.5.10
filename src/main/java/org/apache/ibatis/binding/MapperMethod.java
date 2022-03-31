@@ -1,5 +1,5 @@
 /*
- *    Copyright ${license.git.copyrightYears} the original author or authors.
+ *    Copyright 2009-2022 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -54,6 +54,7 @@ public class MapperMethod {
     this.method = new MethodSignature(config, mapperInterface, method);
   }
 
+  // 具体的CRUD执行逻辑
   public Object execute(SqlSession sqlSession, Object[] args) {
     Object result;
     switch (command.getType()) {
@@ -72,6 +73,7 @@ public class MapperMethod {
         result = rowCountResult(sqlSession.delete(command.getName(), param));
         break;
       }
+      // 执行查询逻辑时都将下沉到defaultSqlSession.selectList()方法
       case SELECT:
         if (method.returnsVoid() && method.hasResultHandler()) {
           executeWithResultHandler(sqlSession, args);
@@ -221,6 +223,7 @@ public class MapperMethod {
     private final String name;
     private final SqlCommandType type;
 
+    // 封装了具体要执行sql的内容，如sql语句，类型及执行对象MappedStatement
     public SqlCommand(Configuration configuration, Class<?> mapperInterface, Method method) {
       final String methodName = method.getName();
       final Class<?> declaringClass = method.getDeclaringClass();

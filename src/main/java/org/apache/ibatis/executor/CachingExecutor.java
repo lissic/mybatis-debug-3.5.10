@@ -1,5 +1,5 @@
 /*
- *    Copyright ${license.git.copyrightYears} the original author or authors.
+ *    Copyright 2009-2022 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -92,6 +92,8 @@ public class CachingExecutor implements Executor {
   @Override
   public <E> List<E> query(MappedStatement ms, Object parameterObject, RowBounds rowBounds, ResultHandler resultHandler, CacheKey key, BoundSql boundSql)
       throws SQLException {
+    // 判断是否配置了二级缓存，如果配置了则从二级缓存中获取结果，如果未配置则直接走查询数据库，二级缓存是跟TransactionCacheManager绑定，
+    // 也就是说二级缓存是跟一个事务绑定，这是为了防止回滚造成的数据过时
     Cache cache = ms.getCache();
     if (cache != null) {
       flushCacheIfRequired(ms);
